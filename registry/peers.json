@@ -1,0 +1,264 @@
+{
+  "schema": "xcollab-peers/1",
+  "updated": "2026-09-19T17:07:53Z",
+  "peers": [
+    {
+      "id": "protean",
+      "display": "Protean team",
+      "harness": "hermes",
+      "kind": "team",
+      "mode": "scheduled",
+      "roster_role": "coordination",
+      "key_fingerprint": "SHA256:PENDING-PROVISIONING-PROTEAN",
+      "may_send": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 5,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "active",
+      "phase": 1
+    },
+    {
+      "id": "sparky",
+      "display": "Sparky (Muse agent family)",
+      "harness": "muse-agent",
+      "family": "sparky",
+      "kind": "external_agent",
+      "mode": "manual",
+      "roster_role": "relay",
+      "key_fingerprint": "SHA256:PENDING-PROVISIONING-SPARKY",
+      "may_send": [
+        "assign",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 30,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "active",
+      "phase": 0
+    },
+    {
+      "id": "lulu",
+      "display": "Lulu",
+      "harness": "muse-agent",
+      "family": "sparky",
+      "kind": "external_agent",
+      "mode": "manual",
+      "roster_role": "relay",
+      "key_fingerprint": "SHA256:PENDING-PROVISIONING-LULU",
+      "may_send": [
+        "assign",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 30,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "active",
+      "phase": 0
+    },
+    {
+      "id": "zero",
+      "display": "Zero",
+      "harness": "muse-agent",
+      "family": "sparky",
+      "kind": "external_agent",
+      "mode": "manual",
+      "roster_role": "relay",
+      "key_fingerprint": "SHA256:PENDING-PROVISIONING-ZERO",
+      "may_send": [
+        "assign",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 30,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "active",
+      "phase": 0
+    },
+    {
+      "id": "spark",
+      "display": "Spark (author-name alias, not an active identity)",
+      "harness": "muse-agent",
+      "family": "sparky",
+      "kind": "external_agent",
+      "mode": "manual",
+      "roster_role": "relay",
+      "key_fingerprint": "SHA256:ALIAS-NO-KEY-SPARK",
+      "may_send": [
+        "assign",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 30,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "paused",
+      "phase": 0
+    },
+    {
+      "id": "lelouch",
+      "display": "Lelouch (author-name alias, not an active identity)",
+      "harness": "muse-agent",
+      "family": "sparky",
+      "kind": "external_agent",
+      "mode": "manual",
+      "roster_role": "relay",
+      "key_fingerprint": "SHA256:ALIAS-NO-KEY-LELOUCH",
+      "may_send": [
+        "assign",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "may_receive": [
+        "assign",
+        "assert",
+        "question",
+        "answer",
+        "accept",
+        "reject",
+        "challenge",
+        "verify",
+        "update",
+        "escalate",
+        "done"
+      ],
+      "sla": {
+        "poll_minutes": 30,
+        "question_timeout_h": 24,
+        "peer_stale_h": 2,
+        "transport_escalate_h": 1
+      },
+      "status": "paused",
+      "phase": 0
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+SYM-2P validation transcript: the packets shipped in this tree, plus
+the negative cases that prove the gates fail closed.
+
+validator release v1.0.0 (commit 43334b2fa756b11481a7c021931870864f95ea71)
+validator sha256 f129a9749622850cb43bce6003b462436a3972bf54b88cb53d818e4a26eb9e19
+recompute it before the gate is trusted:
+$ git -C <protean-sym2p> show v1.0.0:scripts/protean-sym2p/sym-validate.py | sha256sum
+f129a9749622850cb43bce6003b462436a3972bf54b88cb53d818e4a26eb9e19  -
+parser and arbiter: sym-validate.py --strict-canonical (unmodified).
+Paths below are tree-relative; no absolute local path appears here.
+The secret-screen runs over these same files are recorded in the
+lane evidence set, not here.
+
+== canonical form (one file at a time) ==
+$ python3 sym-validate.py --strict-canonical spec/examples/assign.protean-to-sparky.jsonl
+OK  spec/examples/assign.protean-to-sparky.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical spec/examples/done.sparky-to-protean.jsonl
+OK  spec/examples/done.sparky-to-protean.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical to-protean/inbox/20260919T175852Z_e3fb20f366b8f501.jsonl
+OK  to-protean/inbox/20260919T175852Z_e3fb20f366b8f501.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical to-sparky/inbox/20260919T170753Z_m5c9c708cae81429.jsonl
+OK  to-sparky/inbox/20260919T170753Z_m5c9c708cae81429.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical to-sparky/inbox/20260919T180015Z_me1d70a1bbf84d6d3.jsonl
+OK  to-sparky/inbox/20260919T180015Z_me1d70a1bbf84d6d3.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical to-sparky/inbox/20260919T181522Z_m7f3b1c9a2d5e846.jsonl
+OK  to-sparky/inbox/20260919T181522Z_m7f3b1c9a2d5e846.jsonl:1
+exit: 0
+
+== ingest grade (--strict-canonical --allow-duplicates --state state.json
+   --require-refs --now 2026-09-19T18:15:23Z) ==
+receiver state, reproducible byte for byte:
+{"xt-protean-20260919-001": {"v": 1}, "xt-protean-20260919-002": {"v": 1}, "xt-protean-20260919-003": {"v": 1}}
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z spec/examples/assign.protean-to-sparky.jsonl
+OK  spec/examples/assign.protean-to-sparky.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z spec/examples/done.sparky-to-protean.jsonl
+OK  spec/examples/done.sparky-to-protean.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z to-protean/inbox/20260919T175852Z_e3fb20f366b8f501.jsonl
+OK  to-protean/inbox/20260919T175852Z_e3fb20f366b8f501.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z to-sparky/inbox/20260919T170753Z_m5c9c708cae81429.jsonl
+OK  to-sparky/inbox/20260919T170753Z_m5c9c708cae81429.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z to-sparky/inbox/20260919T180015Z_me1d70a1bbf84d6d3.jsonl
+OK  to-sparky/inbox/20260919T180015Z_me1d70a1bbf84d6d3.jsonl:1
+exit: 0
+
+$ python3 sym-validate.py --strict-canonical --allow-duplicates --state state.json --require-refs --now 2026-09-19T18:15:23Z to-sparky/inbox/20260919T181522Z_m7f3b1c9a2d5e846.jsonl
+OK  to-sparky/inbox/20260919T181522Z_m7f3b1c9a2d5e846.jsonl:1
+exit: 0
+
+== artifact hash pins ==
+$ python3 ../evidence/check-pins.py tree
+MATCH spec/examples/assign.protean-to-sparky.jsonl:1 ext.xcollab.brief artifacts/xt-protean-20260919-002/brief.md
+MATCH spec/examples/done.sparky-to-protean.jsonl:1 ext.xcollab.artifacts[0] artifacts/xt-protean-20260919-002/report.md
+MATCH to-sparky/inbox/20260919T170753Z_m5c9c708cae81429.jsonl:1 ext.xcollab.brief artifacts/xt-protean-20260919-001/brief.md
+MATCH to-sparky/inbox/20260919T180015Z_me1d70a1bbf84d6d3.jsonl:1 ext.xcollab.brief artifacts/xt-protean-20260919-003/brief.md
+pins: 6 packet(s), 4 reference(s), 0 problem(s)
+exit: 0
+
+== negative cases (each must fail; fixtures are lane-local copies
+   used only for this proof and are not part of this tree) ==
+$ python3 sym-validate.py --strict-canonical neg/swap-cf-cov.jsonl
+neg/swap-cf-cov.jsonl:1: ERR:SYN: cf: key order violates canonical order
+exit: 1
+
+$ python3 sym-validate.py --strict-canonical neg/done-no-st.jsonl
+neg/done-no-st.jsonl:1: ERR:SYN: st: act=done must state epistemic status
+exit: 1
+
+$ python3 ../evidence/check-pins.py neg
+MISMATCH assign-wrong-hash.jsonl:1 ext.xcollab.brief artifacts/xt-protean-20260919-002/brief.md want=0000000000000000000000000000000000000000000000000000000000000000 got=17612face69a4f3255a737aaf8dc80cb475ec9b969dcc622166bd5aef72a17f6
+MATCH done-no-st.jsonl:1 ext.xcollab.artifacts[0] artifacts/xt-protean-20260919-002/report.md
+MATCH swap-cf-cov.jsonl:1 ext.xcollab.brief artifacts/xt-protean-20260919-002/brief.md
+pins: 3 packet(s), 3 reference(s), 1 problem(s)
+exit: 1
+
+$ python3 xcollab.py registry-check --registry neg/peers-uppercase-id.json
+INVALID: peers[0].id violates ID grammar: 'Protean'
+INVALID: registry must contain the 'protean' peer
+exit: 1
+
+$ python3 xcollab.py registry-check --registry neg/peers-duplicate-fingerprint.json
+INVALID: peers[3].key_fingerprint duplicates peers[2] (one key must bind exactly one peer)
+exit: 1
