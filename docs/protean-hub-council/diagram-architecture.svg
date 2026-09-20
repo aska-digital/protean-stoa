@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" font-family="Helvetica, Arial, sans-serif" role="img" aria-label="Protean provenance hub system architecture">
+<title>Protean Provenance Hub — System Architecture</title>
+<rect x="0" y="0" width="1000" height="700" fill="#ffffff"/>
+<text x="30" y="36" font-size="20" font-weight="bold" fill="#111">Protean Provenance Hub — System Architecture</text>
+<text x="30" y="58" font-size="11" fill="#444">FACT: static Pages = display only (S6) · FACT: Merkle log + witnesses = transparency (S1/S2/S3) · Leo invariants I1–I9 hold</text>
+
+<style>
+.box{fill:#fff;stroke:#111;stroke-width:1.6}
+.auth{fill:#eef7ee;stroke:#0E7A3D;stroke-width:2}
+.disp{fill:#f4f4f4;stroke:#666;stroke-width:1.4;stroke-dasharray:6 3}
+.chan{fill:#eef3fb;stroke:#1D4ED8;stroke-width:1.6}
+.t{font-size:12px;font-weight:bold;fill:#111}
+.s{font-size:10px;fill:#333}
+.cap{font-size:10px;font-weight:bold;fill:#111}
+.ln{stroke:#111;stroke-width:1.6;fill:none}
+.dln{stroke:#1D4ED8;stroke-width:1.6;stroke-dasharray:5 3;fill:none}
+.gln{stroke:#0E7A3D;stroke-width:1.6;stroke-dasharray:2 3;fill:none}
+.tag{font-size:9px;font-weight:bold}
+</style>
+
+<!-- AUTHORITY zone -->
+<rect x="20" y="80" width="640" height="400" fill="none" stroke="#0E7A3D" stroke-width="2.5"/>
+<text x="34" y="102" font-size="11" font-weight="bold" fill="#0E7A3D">AUTHORITY ZONE — the log is the source of truth (I1)</text>
+
+<!-- Producers -->
+<rect class="box" x="40" y="120" width="170" height="86" rx="6"/>
+<text class="t" x="52" y="142">Producers</text>
+<text class="s" x="52" y="158">scribe · agents</text>
+<text class="s" x="52" y="172">humans via OIDC</text>
+<text class="s" x="52" y="186">hashes + DSSE only (I3)</text>
+
+<!-- Scribe boundary callout -->
+<rect x="40" y="214" width="170" height="52" fill="#fff8e6" stroke="#8A5A00" stroke-width="1.4" rx="6"/>
+<text class="tag" x="50" y="232" fill="#8A5A00">SCRIBE BOUNDARY (I7)</text>
+<text class="s" x="50" y="247">hashes only · no plaintext</text>
+<text class="s" x="50" y="259">can delay, cannot forge</text>
+
+<!-- Submission proxy -->
+<rect class="box" x="250" y="120" width="170" height="86" rx="6"/>
+<text class="t" x="262" y="142">Submission proxy</text>
+<text class="s" x="262" y="158">rate-limit · namespace</text>
+<text class="s" x="262" y="172">schema check</text>
+<text class="s" x="262" y="186">rejects future issued_at</text>
+
+<!-- Transparency log -->
+<rect class="auth" x="460" y="120" width="180" height="110" rx="6"/>
+<text class="t" x="472" y="142">Transparency log</text>
+<text class="s" x="472" y="158">Rekor v1 (A1) / Trillian (A2)</text>
+<text class="s" x="472" y="172">STH + inclusion /</text>
+<text class="s" x="472" y="186">consistency proofs</text>
+<text class="s" x="472" y="200">ciphertext hashes only (I3)</text>
+<text class="s" x="472" y="214">key-lifecycle records (I6)</text>
+
+<!-- arrows writes -->
+<path class="ln" d="M210 163 H250"/><path d="M250 163 l-8 -4 v8 z" fill="#111"/>
+<path class="ln" d="M420 163 H460"/><path d="M460 163 l-8 -4 v8 z" fill="#111"/>
+<text class="s" x="255" y="112">writes</text>
+
+<!-- Witnesses -->
+<rect class="auth" x="250" y="300" width="190" height="90" rx="6"/>
+<text class="t" x="262" y="322">W1 council mirror</text>
+<text class="s" x="262" y="338">scheduled job · STH chain</text>
+<text class="s" x="262" y="352">consistency check · alert</text>
+<text class="s" x="262" y="366">on failure = kill event</text>
+<text class="s" x="262" y="380">soak 30 days (gate)</text>
+
+<rect class="auth" x="460" y="300" width="180" height="90" rx="6"/>
+<text class="t" x="472" y="322">W2 ext. monitor</text>
+<text class="s" x="472" y="338">rekor-monitor</text>
+<text class="s" x="472" y="352">hub namespace</text>
+<text class="s" x="472" y="366">independent operator</text>
+
+<path class="gln" d="M520 230 V300"/>
+<path class="gln" d="M345 290 C345 270 500 260 560 250"/>
+<text class="s" x="530" y="268">STH</text>
+<text class="cap" x="250" y="420">gossip corroboration: verifier compares STH vs W1 snapshot (I5, I8)</text>
+<path class="gln" d="M440 345 H460"/>
+
+<!-- E2EE channel lane -->
+<rect x="20" y="500" width="640" height="120" fill="none" stroke="#1D4ED8" stroke-width="2.5"/>
+<text x="34" y="522" font-size="11" font-weight="bold" fill="#1D4ED8">ENCRYPTED-MESSAGE BOUNDARY — plaintext never enters the log (I3 · I4)</text>
+<rect class="chan" x="40" y="534" width="280" height="66" rx="6"/>
+<text class="t" x="52" y="556">E2EE channel (SYM-2P)</text>
+<text class="s" x="52" y="572">1:1 sealed-box / Noise first;</text>
+<text class="s" x="52" y="586">MLS gated on measured need</text>
+<rect class="chan" x="350" y="534" width="290" height="66" rx="6"/>
+<text class="t" x="362" y="556">Ciphertext-hash logging</text>
+<text class="s" x="362" y="572">SHA-256(ciphertext) + DSSE</text>
+<text class="s" x="362" y="586">submitted at send time</text>
+<path class="dln" d="M320 567 H350"/><path d="M350 567 l-8 -4 v8 z" fill="#1D4ED8"/>
+<path class="dln" d="M495 534 V460"/>
+<text class="s" x="505" y="500">hash only crosses</text>
+
+<!-- DISPLAY zone -->
+<rect x="690" y="80" width="290" height="540" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="8 4"/>
+<text x="704" y="102" font-size="11" font-weight="bold" fill="#444">DISPLAY ZONE — zero authority (I1)</text>
+
+<rect class="disp" x="710" y="120" width="250" height="110" rx="6"/>
+<text class="t" x="722" y="142">GitHub Pages site</text>
+<text class="s" x="722" y="158">static HTML/JS/WASM (S6)</text>
+<text class="s" x="722" y="172">client verifier recomputes</text>
+<text class="s" x="722" y="186">proofs — trusts no HTML (I5)</text>
+<text class="s" x="722" y="200">Cache-Control: no-cache STH</text>
+<text class="s" x="722" y="214">standalone CLI verifier</text>
+
+<rect class="disp" x="710" y="250" width="250" height="80" rx="6"/>
+<text class="t" x="722" y="272">Repo: site source</text>
+<text class="s" x="722" y="288">nightly JSONL mirror</text>
+<text class="s" x="722" y="302">(display only, no authority)</text>
+<text class="s" x="722" y="316">/.well-known/did.json (I6)</text>
+
+<rect class="disp" x="710" y="350" width="250" height="80" rx="6"/>
+<text class="t" x="722" y="372">Verifier verdicts</text>
+<text class="s" x="722" y="388">VERIFIED / REJECTED /</text>
+<text class="s" x="722" y="402">UNVERIFIED (STH / soak /</text>
+<text class="s" x="722" y="416">stale-cache) + assumptions</text>
+
+<rect class="disp" x="710" y="450" width="250" height="80" rx="6"/>
+<text class="t" x="722" y="472">Status-list cache</text>
+<text class="s" x="722" y="488">revocation quick-check;</text>
+<text class="s" x="722" y="502">log record is authority</text>
+<text class="s" x="722" y="516">key state replayed (I6)</text>
+
+<!-- reads arrows -->
+<path class="ln" d="M640 175 C 670 175 680 175 710 175"/><path d="M710 175 l-8 -4 v8 z" fill="#111"/>
+<text class="s" x="648" y="162">reads</text>
+<path class="gln" d="M560 345 C 620 345 660 380 710 385"/>
+<text class="s" x="600" y="360">corroborate</text>
+
+<!-- footer -->
+<text x="30" y="652" font-size="10" fill="#333">Separation of operators (I8): hub key, log operator, and one witness must be independent. No silent downgrade (I9): every verdict states log endpoint, witness set, key state.</text>
+<text x="30" y="670" font-size="10" fill="#333">OPEN: W2 long-term owner · OPEN: cold recovery-key custody · RECOMMENDATION: A1 public Rekor v1, A2 as escape hatch (endpoint swap).</text>
+</svg>
