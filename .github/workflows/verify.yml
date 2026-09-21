@@ -1,0 +1,45 @@
+name: Verify
+on:
+  push:
+    branches: [main, 'release-*']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+env:
+  VALIDATOR_COMMIT: 43334b2fa756b11481a7c021931870864f95ea71
+  VALIDATOR_SHA256: f129a9749622850cb43bce6003b462436a3972bf54b88cb53d818e4a26eb9e19
+jobs:
+  verify:
+    name: Gates and packets
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.11']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run internal-names gate
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python3 gates/check-internal-names.py --diff-only .
+          else
+            python3 gates/check-internal-names.py .
+          fi
+      - name: Fetch pinned SYM-2P validator (v1.0.0)
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/sym-validate.py" \
+            "https://raw.githubusercontent.com/aska-digital/protean-sym2p/${VALIDATOR_COMMIT}/scripts/protean-sym2p/sym-validate.py"
+          echo "${VALIDATOR_SHA256}  $RUNNER_TEMP/sym-validate.py" | sha256sum -c -
+      - name: Validate SYM-2P packets
+        run: |
+          mapfile -t JSONL < <(find . -path ./.git -prune -o -name '*.jsonl' -print)
+          if [ "${#JSONL[@]}" -eq 0 ]; then echo "no .jsonl files, skipping"; exit 0; fi
+          for f in "${JSONL[@]}"; do
+            echo "validating $f"
+            python3 "$RUNNER_TEMP/sym-validate.py" --strict-canonical "$f" || exit 1
+          done
