@@ -1,0 +1,54 @@
+# gates/internal-names.allowlist
+#
+# INTENTIONAL public identifiers found by the full-tree internal-names gate.
+#
+# A full-tree run of gates/check-internal-names.py reports 40 token-digest
+# findings, all in pre-existing exchange documentation. Every one of them is
+# one of the eight public council/exchange role identifiers listed below.
+# These names appear in the public peer registry, the council proposal, and
+# operating procedures. They are public by design, not private identifiers,
+# so the PR gate (verify.yml, pull_request events) scans only changed files
+# via `check-internal-names.py --diff-only` instead of failing every PR on
+# these pre-existing lines. Push events still run the full-tree scan.
+#
+# This file names the identifiers in plain text on purpose, as the record of
+# what is intentional. It is excluded from scanning via SELF_EXCLUDE in
+# gates/check-internal-names.py and must stay excluded.
+#
+# Public role identifiers (8):
+#   proteus, mozi, hazen, leo, frida, shaka, orda, lugia
+#
+# Pre-existing findings at commit 86130e2 (file:line [kind]), all
+# kind=token-digest, total 40:
+#   docs/protean-hub-council/diagram-architecture.svg:5 [token-digest]
+#   docs/protean-hub-council/diagram-disclosure-flow.svg:5 [token-digest]
+#   docs/protean-hub-council/diagram-disclosure-flow.svg:77 [token-digest]
+#   docs/protean-hub-council/diagram-workstreams.svg:5 [token-digest]
+#   docs/protean-hub-council/diagram-workstreams.svg:30 [token-digest] (x2)
+#   docs/protean-hub-council/diagram-workstreams.svg:123 [token-digest] (x2)
+#   docs/protean-hub-council/proposal.md:4 [token-digest] (x4)
+#   docs/protean-hub-council/proposal.md:184 [token-digest] (x2)
+#   docs/protean-hub-council/proposal.md:236 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:3 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:8 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:46 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:65 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:159 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:213 [token-digest]
+#   procedure/CLAIM-DISCIPLINE.md:232 [token-digest]
+#   procedure/EXTERNAL-AGENTS-TIER-2-CHECKLIST.md:126 [token-digest]
+#   procedure/EXTERNAL-AGENTS.md:111 [token-digest]
+#   procedure/LEADERSHIP-AND-SIGNOFF.md:7 [token-digest]
+#   procedure/LEADERSHIP-AND-SIGNOFF.md:8 [token-digest]
+#   procedure/LEADERSHIP-AND-SIGNOFF.md:9 [token-digest]
+#   procedure/LEADERSHIP-AND-SIGNOFF.md:15 [token-digest] (x2)
+#   procedure/LEADERSHIP-AND-SIGNOFF.md:16 [token-digest]
+#   procedure/VAULT.md:23 [token-digest]
+#   procedure/VAULT.md:24 [token-digest] (x3)
+#   procedure/VAULT.md:34 [token-digest]
+#   scripts/two-sparky-pickup-test.sh:13 [token-digest]
+#   scripts/two-sparky-pickup-test.sh:60 [token-digest]
+#   to-protean/inbox/20260919T175852Z_e3fb20f366b8f501.jsonl:1 [token-digest]
+#   to-sparky/inbox/20260919T181522Z_m7f3b1c9a2d5e846.jsonl:1 [token-digest] (x2)
+#
+# Do NOT add private identifiers to this file. Do NOT modify the blocklist.

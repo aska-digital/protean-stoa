@@ -12,12 +12,18 @@ Two independent detectors:
                       private knowledge-base markers without spelling a single
                       example of one.
 
-Usage: python3 gates/check-internal-names.py [path/to/repo]
+Usage: python3 gates/check-internal-names.py [--diff-only] [path/to/repo]
+
+  --diff-only  scan only files changed on this branch vs origin/main
+               (git merge-base HEAD origin/main, then git diff --name-only).
+               For PR checks: pre-existing findings elsewhere in the tree do
+               not fail the PR. Without the flag the full tree is scanned.
 Exit: 0 clean; 1 leak found.
 """
 import hashlib
 import os
 import re
+import subprocess
 import sys
 
 TOKEN_RE = re.compile(r"[A-Za-z0-9]+")
@@ -35,7 +41,10 @@ PATH_RES = [
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv"}
 SKIP_EXT = (".pyc", ".so", ".png", ".jpg", ".jpeg", ".gif", ".pdf", ".zip",
             ".woff", ".woff2", ".ttf", ".ico")
-SELF_EXCLUDE = {"gates/check-internal-names.py", "gates/internal-names.blocklist"}
+SELF_EXCLUDE = {"gates/check-internal-names.py", "gates/internal-names.blocklist",
+                # Allowlist documents pre-existing public role identifiers in
+                # plain text, so it must never be scanned itself.
+                "gates/internal-names.allowlist"}
 
 
 def load_blocklist(repo):
@@ -51,9 +60,27 @@ def load_blocklist(repo):
     return digests
 
 
-def scan(repo, digests):
+def git_changed_files(repo):
+    """Repo-relative paths changed on this branch vs origin/main."""
+    def run(*args):
+        try:
+            proc = subprocess.run(["git"] + list(args), cwd=repo,
+                                  capture_output=True, text=True, check=True)
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise SystemExit("gate error: --diff-only needs origin/main "
+                             "(git %s failed: %s)" % (" ".join(args), exc))
+        return proc.stdout
+    base = run("merge-base", "HEAD", "origin/main").strip()
+    if not base:
+        raise SystemExit("gate error: --diff-only: empty merge-base with origin/main")
+    out = run("diff", "--name-only", base, "HEAD")
+    return [line.strip() for line in out.splitlines() if line.strip()]
+
+
+def scan(repo, digests, only=None):
     findings = []
     scanned = 0
+    only_set = set(only) if only is not None else None
     for root, dirs, files in os.walk(repo):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
         for name in sorted(files):
@@ -62,6 +89,8 @@ def scan(repo, digests):
             abspath = os.path.join(root, name)
             rel = os.path.relpath(abspath, repo).replace(os.sep, "/")
             if rel in SELF_EXCLUDE or not os.path.isfile(abspath):
+                continue
+            if only_set is not None and rel not in only_set:
                 continue
             scanned += 1
             try:
@@ -82,9 +111,17 @@ def scan(repo, digests):
 
 
 def main():
-    repo = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else ".")
+    args = [a for a in sys.argv[1:] if a != "--diff-only"]
+    diff_only = len(args) != len(sys.argv[1:])
+    repo = os.path.abspath(args[0] if args else ".")
     digests = load_blocklist(repo)
-    scanned, findings = scan(repo, digests)
+    only = None
+    if diff_only:
+        only = git_changed_files(repo)
+        print("mode: diff-only (" + str(len(only)) + " changed file(s) vs origin/main)")
+    else:
+        print("mode: full-tree")
+    scanned, findings = scan(repo, digests, only)
     if findings:
         print("LEAK: " + str(len(findings)) + " finding(s)")
         for rel, lineno, kind in findings[:40]:
