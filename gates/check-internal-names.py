@@ -60,6 +60,40 @@ def load_blocklist(repo):
     return digests
 
 
+def load_allowlist(repo):
+    # Digest-based exclusion only: parse the public role identifiers named
+    # in comments in gates/internal-names.allowlist, hash each lowercased
+    # name with SHA256, and return the digest set. Never compares plain-text
+    # names against scanned content. Fail closed on missing/unparseable file.
+    import hashlib as _hl
+    path = os.path.join(repo, "gates", "internal-names.allowlist")
+    if not os.path.exists(path):
+        raise SystemExit("gate error: gates/internal-names.allowlist missing")
+    name_re = re.compile(r"^[A-Za-z0-9_-]+$")
+    names = []
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            s = line.strip()
+            # Only identifier-list comment lines: '#' followed by
+            # comma-separated tokens (e.g. '#   proteus, mozi, ...').
+            if not s.startswith("#"):
+                continue
+            body = s.lstrip("#").strip()
+            if "," not in body:
+                continue
+            if not re.fullmatch(r"[A-Za-z0-9_, \t-]+", body):
+                continue
+            for part in body.split(","):
+                token = part.strip()
+                if token and name_re.fullmatch(token):
+                    names.append(token.lower())
+    if not names:
+        raise SystemExit(
+            "gate error: gates/internal-names.allowlist unparseable "
+            "(no identifiers found)")
+    return {_hl.sha256(n.encode("utf-8")).hexdigest() for n in names}
+
+
 def git_changed_files(repo):
     """Repo-relative paths changed on this branch vs origin/main."""
     def run(*args):
@@ -77,9 +111,10 @@ def git_changed_files(repo):
     return [line.strip() for line in out.splitlines() if line.strip()]
 
 
-def scan(repo, digests, only=None):
+def scan(repo, digests, allowlist=None, only=None):
     findings = []
     scanned = 0
+    allowlist = allowlist or set()
     only_set = set(only) if only is not None else None
     for root, dirs, files in os.walk(repo):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
@@ -102,7 +137,7 @@ def scan(repo, digests, only=None):
                 for match in TOKEN_RE.finditer(line):
                     digest = hashlib.sha256(
                         match.group(0).lower().encode("utf-8")).hexdigest()
-                    if digest in digests:
+                    if digest in digests and digest not in allowlist:
                         findings.append((rel, lineno, "token-digest"))
                 for rx in PATH_RES:
                     if rx.search(line):
@@ -115,13 +150,14 @@ def main():
     diff_only = len(args) != len(sys.argv[1:])
     repo = os.path.abspath(args[0] if args else ".")
     digests = load_blocklist(repo)
+    allowlist = load_allowlist(repo)
     only = None
     if diff_only:
         only = git_changed_files(repo)
         print("mode: diff-only (" + str(len(only)) + " changed file(s) vs origin/main)")
     else:
         print("mode: full-tree")
-    scanned, findings = scan(repo, digests, only)
+    scanned, findings = scan(repo, digests, allowlist, only)
     if findings:
         print("LEAK: " + str(len(findings)) + " finding(s)")
         for rel, lineno, kind in findings[:40]:
