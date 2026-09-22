@@ -2,6 +2,14 @@
 #
 # INTENTIONAL public identifiers found by the full-tree internal-names gate.
 #
+# FORMAT: one 64-hex digest per line; sha256 of the name; comments start with
+# '#'. A line whose first non-blank character is '#' is a pure comment and is
+# ignored entirely, so comments may carry prose. Every other line must hold
+# one or more 64-hex digests, separated by commas and/or whitespace. Any other
+# token on a non-comment line is a hard load error - the gate prints the
+# file:line and exits non-zero, rather than quietly widening the suppression
+# set with a word from wrapped prose.
+#
 # A full-tree run of gates/check-internal-names.py reports 40 token-digest
 # findings, all in pre-existing exchange documentation. Every one of them is
 # one of the eight public council/exchange role identifiers listed below.
@@ -17,6 +25,16 @@
 #
 # Public role identifiers (8):
 #   proteus, mozi, hazen, leo, frida, shaka, orda, lugia
+#
+# Digests (8), sorted ascending - sha256 of each name above:
+684a34e1dfac0ad7218ad677a0a7c4859540ca1544cee037ba8ed476a2ded310
+76fdf9f745ed191d5c2a4dbde82148d6b523e759e388306f5f111f7587762686
+8535e86c8118bbbb0a18ac72d15d3a2b37b18d1bce1611fc60165f322cf57386
+b93d1d4b19afbe7d80d0d8fc433d9ca907413336978eac4c3032fcb45c0e019e
+d60893a4805c67252dd46e05c09c6dc8fde20fa3b3d331b361f3da8f50476926
+db77ca6bb991f807190b0c8cb00c09b74094f089a2efb2a0e629d00540973846
+eae9c503560da21fed2da57c5a22fe189c1e8e7d2d42ea79dff11ea95aa55ad7
+ed89e9ec1b77031e5fd28001115eebe1091c890fdee373d10b2be6a7252fc162
 #
 # Pre-existing findings at commit 86130e2 (file:line [kind]), all
 # kind=token-digest, total 40:
