@@ -5,9 +5,13 @@ Two independent detectors:
 
   D1 token digests  - every alphanumeric token in every scanned file is
                       lower-cased and hashed; a digest that appears in
-                      gates/internal-names.blocklist is a leak. The blocklist
-                      ships digests only, so this file never carries a private
-                      name.
+                      gates/internal-names.blocklist is a leak, unless the
+                      same digest is allowlisted in
+                      gates/internal-names.allowlist (explicit digest lines:
+                      one 64-hex digest per line, sha256 of the name, a '#'
+                      line is a pure comment; any non-digest token on a
+                      non-comment line is a hard load error). Both files ship
+                      digests only, so neither ever carries a private name.
   D2 path shapes    - regexes that match machine-specific absolute paths and
                       private knowledge-base markers without spelling a single
                       example of one.
@@ -61,37 +65,37 @@ def load_blocklist(repo):
 
 
 def load_allowlist(repo):
-    # Digest-based exclusion only: parse the public role identifiers named
-    # in comments in gates/internal-names.allowlist, hash each lowercased
-    # name with SHA256, and return the digest set. Never compares plain-text
-    # names against scanned content. Fail closed on missing/unparseable file.
-    import hashlib as _hl
+    # Explicit digest lines only. The digest set comes from the non-blank
+    # content of gates/internal-names.allowlist lines whose first non-blank
+    # character is not '#'; such a line must hold one or more tokens matching
+    # ^[0-9a-f]{64}$, separated by commas and/or whitespace. A line whose
+    # first non-blank character is '#' is a pure comment and is ignored
+    # entirely, so comments may carry prose. Any non-comment line carrying a
+    # token that is not a 64-hex digest is a hard load error: fail closed,
+    # rather than silently widening the suppression set with a word from
+    # wrapped prose. Never compares plain-text names against scanned content.
     path = os.path.join(repo, "gates", "internal-names.allowlist")
     if not os.path.exists(path):
         raise SystemExit("gate error: gates/internal-names.allowlist missing")
-    name_re = re.compile(r"^[A-Za-z0-9_-]+$")
-    names = []
+    digests = set()
     with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            s = line.strip()
-            # Only identifier-list comment lines: '#' followed by
-            # comma-separated tokens (e.g. '#   proteus, mozi, ...').
-            if not s.startswith("#"):
+        for lineno, line in enumerate(fh, 1):
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
                 continue
-            body = s.lstrip("#").strip()
-            if "," not in body:
-                continue
-            if not re.fullmatch(r"[A-Za-z0-9_, \t-]+", body):
-                continue
-            for part in body.split(","):
-                token = part.strip()
-                if token and name_re.fullmatch(token):
-                    names.append(token.lower())
-    if not names:
+            for token in re.split(r"[,\s]+", stripped):
+                if not token:
+                    continue
+                if not re.fullmatch(r"[0-9a-f]{64}", token):
+                    raise SystemExit(
+                        "gate error: gates/internal-names.allowlist:%d: "
+                        "not a 64-hex digest: %r" % (lineno, token))
+                digests.add(token)
+    if not digests:
         raise SystemExit(
             "gate error: gates/internal-names.allowlist unparseable "
-            "(no identifiers found)")
-    return {_hl.sha256(n.encode("utf-8")).hexdigest() for n in names}
+            "(no digests found)")
+    return digests
 
 
 def git_changed_files(repo):
